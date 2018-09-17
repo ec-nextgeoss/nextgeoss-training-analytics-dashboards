@@ -1,0 +1,53 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+metricbeat.modules:
+- module: system
+  period: 20m
+  metricsets:
+    - cpu
+    - load
+    - memory
+    - network
+    - process
+    - process_summary
+    - filesystem
+    - fsstat
+    - core
+    - diskio
+    #- socket
+  processes: ['.*']
+  process.include_top_n:
+    # enabled false - means include all and do not restrict
+    # enabled: false
+    enabled: true
+    by_cpu: 5      # include top 5 processes by CPU
+    by_memory: 5   # include top 5 processes by memory
+
+  processors:
+  - drop_event.when.regexp:
+  #    system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+  #    system.filesystem.mount_point: '^/(hostfs|sys|cgroup|proc|dev|etc|host|lib)($|/)'
+      system.filesystem.mount_point: '^/(usr|hostfs|sys|cgroup|proc|dev|etc|host|lib)($|/)'
+
+  # Configure the metric types that are included by these metricsets.
+  cpu.metrics:  ["percentages"]  # The other available options are normalized_percentages and ticks.
+  core.metrics: ["percentages"]  # The other available option is ticks.
+
+
+
+#- module: system
+#  period: 30s
+#  metricsets:
+#    - uptime
+
+
+output.elasticsearch:
+  # port 9202 maps to 9000  DEV
+  # port 9201 maps to 9001  PUBLIC
+  hosts: ['213.63.139.62:9202']
+  username: ******
+  password: ******
+
+name: "SIMOcean"
